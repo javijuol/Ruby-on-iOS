@@ -1,0 +1,64 @@
+diff -ruN ../version/ruby-2.2.1/configure ruby-2.2.1/configure
+--- ../version/ruby-2.2.1/configure	2015-02-27 15:34:18.000000000 +0800
++++ ruby-2.2.1/configure	2015-05-11 20:54:46.000000000 +0800
+@@ -5597,6 +5597,9 @@
+ #ifdef __ppc64__
+ "processor-name=powerpc64"
+ #endif
++#ifdef __arm64__
++"processor-name=arm64"
++#endif
+ EOF
+ 	    sed -n 's/^"processor-name=\(.*\)"/\1/p'`
+ 	    target="$target_cpu${target}"
+diff -ruN ../version/ruby-2.2.1/dir.c ruby-2.2.1/dir.c
+--- ../version/ruby-2.2.1/dir.c	2015-02-20 16:59:19.000000000 +0800
++++ ruby-2.2.1/dir.c	2015-05-11 20:52:50.000000000 +0800
+@@ -101,12 +101,13 @@
+ #if NORMALIZE_UTF8PATH
+ #include <sys/param.h>
+ #include <sys/mount.h>
+-#include <sys/vnode.h>
++/*#include <sys/vnode.h>*/
+ 
+ static inline int
+ need_normalization(DIR *dirp)
+ {
+ # ifdef HAVE_GETATTRLIST
++#if 0
+     u_int32_t attrbuf[SIZEUP32(fsobj_tag_t)];
+     struct attrlist al = {ATTR_BIT_MAP_COUNT, 0, ATTR_CMN_OBJTAG,};
+     if (!fgetattrlist(dirfd(dirp), &al, attrbuf, sizeof(attrbuf), 0)) {
+@@ -117,6 +118,7 @@
+ 	    return TRUE;
+ 	}
+     }
++#endif
+ # endif
+     return FALSE;
+ }
+diff -ruN ../version/ruby-2.2.1/dln.c ruby-2.2.1/dln.c
+--- ../version/ruby-2.2.1/dln.c	2014-10-11 10:11:53.000000000 +0800
++++ ruby-2.2.1/dln.c	2015-05-11 20:52:50.000000000 +0800
+@@ -1325,6 +1325,7 @@
+ # define RTLD_GLOBAL 0
+ #endif
+ 
++#if 0
+ 	/* Load file */
+ 	if ((handle = (void*)dlopen(file, RTLD_LAZY|RTLD_GLOBAL)) == NULL) {
+ 	    error = dln_strerror();
+@@ -1332,9 +1333,12 @@
+ 	}
+ 
+ 	init_fct = (void(*)())(VALUE)dlsym(handle, buf);
++#endif
++        handle = (void *)-1;    
++	init_fct = (void(*)())(VALUE)dlsym(RTLD_DEFAULT, buf);
+ 	if (init_fct == NULL) {
+ 	    error = DLN_ERROR();
+-	    dlclose(handle);
++	    /*dlclose(handle);*/
+ 	    goto failed;
+ 	}
+ 	/* Call the init code */
