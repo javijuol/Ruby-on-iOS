@@ -25,6 +25,5 @@ require "test"
 def reload
     test = Test.new
     result = test.single_test
-    puts result
     console_log result.to_s
 end

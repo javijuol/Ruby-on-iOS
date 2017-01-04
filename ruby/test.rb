@@ -7,7 +7,7 @@
 #
 
 class Test
-	@@change_me_at_runtime = "What's up?"
+	@@change_me_at_runtime = "Hello, World!"
     
     def single_test
     	@@change_me_at_runtime
